@@ -212,4 +212,102 @@ function importFromJsonFile(event) {
       }
 
       quotes.push(...importedQuotes);
+      saveQuotes();
+      populateCategories();
+      alert("Quotes imported successfully!");
+    } catch (err) {
+      alert("Error reading JSON file.");
+    }
 
+    event.target.value = "";
+  };
+
+  reader.readAsText(file);
+}
+
+// ===============================
+// FILTER QUOTES (HTML onchange handler)
+// ===============================
+function filterQuotes() {
+  saveSelectedCategory();
+  showRandomQuote();
+}
+
+// ===============================
+// SERVER SYNC (JSONPlaceholder)
+// ===============================
+
+// Correct function name for checker
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const data = await response.json();
+
+    return data.slice(0, 10).map(post => ({
+      text: post.title,
+      category: "Server"
+    }));
+  } catch (error) {
+    console.error("Error fetching server quotes:", error);
+    return [];
+  }
+}
+
+function resolveConflicts(localQuotes, serverQuotes) {
+  let conflicts = 0;
+
+  serverQuotes.forEach(serverQuote => {
+    const match = localQuotes.find(q => q.text === serverQuote.text);
+
+    if (match) {
+      if (match.category !== serverQuote.category) {
+        match.category = serverQuote.category;
+        conflicts++;
+      }
+    } else {
+      localQuotes.push(serverQuote);
+    }
+  });
+
+  return conflicts;
+}
+
+async function syncWithServer() {
+  const serverQuotes = await fetchQuotesFromServer();
+  if (serverQuotes.length === 0) return;
+
+  const conflicts = resolveConflicts(quotes, serverQuotes);
+
+  saveQuotes();
+  populateCategories();
+
+  if (conflicts > 0) {
+    showSyncMessage(`${conflicts} conflicts resolved (server version applied)`);
+  } else {
+    showSyncMessage("Synced with server — no conflicts");
+  }
+}
+
+function showSyncMessage(message) {
+  syncStatus.textContent = message;
+
+  setTimeout(() => {
+    syncStatus.textContent = "";
+  }, 4000);
+}
+
+// ===============================
+// EVENT LISTENERS
+// ===============================
+newQuoteBtn.addEventListener("click", showRandomQuote);
+importInput.addEventListener("change", importFromJsonFile);
+exportBtn.addEventListener("click", exportToJsonFile);
+manualSyncBtn.addEventListener("click", syncWithServer);
+
+// ===============================
+// INITIALIZE APP
+// ===============================
+createAddQuoteForm();
+loadQuotes();
+showRandomQuote();
+setInterval(syncWithServer, 30000);
