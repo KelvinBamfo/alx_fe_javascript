@@ -18,6 +18,8 @@ const newQuoteBtn = document.getElementById("newQuote");
 const categoryFilter = document.getElementById("categoryFilter");
 const importInput = document.getElementById("importFile");
 const exportBtn = document.getElementById("exportJsonBtn");
+const syncStatus = document.getElementById("syncStatus");
+const manualSyncBtn = document.getElementById("manualSyncBtn");
 
 // ===============================
 // LOAD QUOTES FROM LOCAL STORAGE
@@ -33,7 +35,6 @@ function loadQuotes() {
       quotes = [];
     }
   } else {
-    // Default starter quotes
     quotes = [
       { text: "Life is a circle", category: "Philosophy" },
       { text: "Code is poetry", category: "Programming" },
@@ -59,12 +60,6 @@ function saveQuotes() {
 function saveSelectedCategory() {
   localStorage.setItem(SELECTED_CATEGORY_KEY, categoryFilter.value);
 }
-
-function filterQuotes() {
-  saveSelectedCategory();
-  showRandomQuote();
-}
-
 
 // ===============================
 // LOAD SELECTED CATEGORY
@@ -92,7 +87,6 @@ function populateCategories() {
     categoryFilter.appendChild(option);
   });
 
-  // Restore saved filter after repopulating
   loadSelectedCategory();
 }
 
@@ -113,7 +107,6 @@ function showRandomQuote() {
 
     quoteDisplay.innerHTML = `"${quote.text}" — <em>${quote.category}</em>`;
 
-    // Save last viewed quote index (session storage)
     const globalIndex = quotes.indexOf(quote);
     sessionStorage.setItem(SESSION_STORAGE_KEY, globalIndex.toString());
   } else {
@@ -219,34 +212,4 @@ function importFromJsonFile(event) {
       }
 
       quotes.push(...importedQuotes);
-      saveQuotes();
-      populateCategories();
-      alert("Quotes imported successfully!");
-    } catch (err) {
-      alert("Error reading JSON file.");
-    }
 
-    event.target.value = ""; // reset input
-  };
-
-  reader.readAsText(file);
-}
-
-// ===============================
-// EVENT LISTENERS
-// ===============================
-newQuoteBtn.addEventListener("click", showRandomQuote);
-importInput.addEventListener("change", importFromJsonFile);
-exportBtn.addEventListener("click", exportToJsonFile);
-
-//categoryFilter.addEventListener("change", () => {
-  //saveSelectedCategory();
-  //showRandomQuote();
-//});
-
-// ===============================
-// INITIALIZE APP
-// ===============================
-createAddQuoteForm();
-loadQuotes();
-showRandomQuote();
