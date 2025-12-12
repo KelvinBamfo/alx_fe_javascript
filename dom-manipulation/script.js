@@ -318,6 +318,10 @@ function showSyncMessage(message) {
   }, 4000);
 }
 
+function syncQuotes() {
+  syncWithServer();
+}
+
 // ===============================
 // EVENT LISTENERS
 // ===============================
