@@ -303,6 +303,9 @@ async function syncWithServer() {
   saveQuotes();
   populateCategories();
 
+  showSyncMessage("Quotes synced with server!");
+
+
   if (conflicts > 0) {
     showSyncMessage(`✅ ${conflicts} conflicts resolved (server version applied)`);
   } else {
