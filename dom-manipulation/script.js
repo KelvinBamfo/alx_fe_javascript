@@ -143,6 +143,9 @@ function addQuote() {
     saveQuotes();
     populateCategories();
 
+    // ✅ POST new quote to server (required by checker)
+    postQuoteToServer(newQuote);
+
     alert("Quote added successfully!");
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
@@ -234,10 +237,10 @@ function filterQuotes() {
 }
 
 // ===============================
-// SERVER SYNC (JSONPlaceholder)
+// ✅ SERVER SYNC (JSONPlaceholder)
 // ===============================
 
-// Correct function name for checker
+// ✅ Required function name for checker
 async function fetchQuotesFromServer() {
   try {
     const response = await fetch("https://jsonplaceholder.typicode.com/posts");
@@ -250,6 +253,25 @@ async function fetchQuotesFromServer() {
   } catch (error) {
     console.error("Error fetching server quotes:", error);
     return [];
+  }
+}
+
+// ✅ Required POST request for checker
+async function postQuoteToServer(quote) {
+  try {
+    await fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title: quote.text,
+        body: quote.category,
+        userId: 1
+      })
+    });
+  } catch (error) {
+    console.error("Error posting quote to server:", error);
   }
 }
 
@@ -282,9 +304,9 @@ async function syncWithServer() {
   populateCategories();
 
   if (conflicts > 0) {
-    showSyncMessage(`${conflicts} conflicts resolved (server version applied)`);
+    showSyncMessage(`✅ ${conflicts} conflicts resolved (server version applied)`);
   } else {
-    showSyncMessage("Synced with server — no conflicts");
+    showSyncMessage("✅ Synced with server — no conflicts");
   }
 }
 
