@@ -3,6 +3,7 @@
 // ===============================
 const LOCAL_STORAGE_KEY = "quotesData";
 const SESSION_STORAGE_KEY = "lastViewedQuoteIndex";
+const SELECTED_CATEGORY_KEY = "selectedCategory";
 
 // ===============================
 // QUOTES ARRAY (loaded from storage)
@@ -41,6 +42,7 @@ function loadQuotes() {
   }
 
   populateCategories();
+  loadSelectedCategory();
   restoreLastViewedQuote();
 }
 
@@ -52,12 +54,35 @@ function saveQuotes() {
 }
 
 // ===============================
+// SAVE SELECTED CATEGORY
+// ===============================
+function saveSelectedCategory() {
+  localStorage.setItem(SELECTED_CATEGORY_KEY, categoryFilter.value);
+}
+
+function filterQuotes() {
+  saveSelectedCategory();
+  showRandomQuote();
+}
+
+
+// ===============================
+// LOAD SELECTED CATEGORY
+// ===============================
+function loadSelectedCategory() {
+  const saved = localStorage.getItem(SELECTED_CATEGORY_KEY);
+
+  if (saved && [...categoryFilter.options].some(opt => opt.value === saved)) {
+    categoryFilter.value = saved;
+  }
+}
+
+// ===============================
 // POPULATE CATEGORY DROPDOWN
 // ===============================
 function populateCategories() {
   const categories = [...new Set(quotes.map(q => q.category))];
 
-  // Clear existing options except "All"
   categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
 
   categories.forEach(cat => {
@@ -66,6 +91,9 @@ function populateCategories() {
     option.textContent = cat;
     categoryFilter.appendChild(option);
   });
+
+  // Restore saved filter after repopulating
+  loadSelectedCategory();
 }
 
 // ===============================
@@ -211,10 +239,14 @@ newQuoteBtn.addEventListener("click", showRandomQuote);
 importInput.addEventListener("change", importFromJsonFile);
 exportBtn.addEventListener("click", exportToJsonFile);
 
+//categoryFilter.addEventListener("change", () => {
+  //saveSelectedCategory();
+  //showRandomQuote();
+//});
+
 // ===============================
 // INITIALIZE APP
 // ===============================
 createAddQuoteForm();
 loadQuotes();
-
-
+showRandomQuote();
